@@ -1,0 +1,216 @@
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { COLORS } from './constants';
+
+const { width } = Dimensions.get('window');
+const isWeb = Platform.OS === 'web';
+
+export default function LandingScreen({ onLogin }) {
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Navbar */}
+      <View style={styles.navbar}>
+        <View style={styles.logoContainer}>
+          <Text style={styles.logoIcon}>💎</Text>
+          <Text style={styles.logoText}>Finanças Pro</Text>
+        </View>
+        
+        {isWeb && width > 768 && (
+          <View style={styles.navLinks}>
+            <Text style={styles.navLink}>Recursos</Text>
+            <Text style={styles.navLink}>Analytics</Text>
+            <Text style={styles.navLink}>Preços</Text>
+          </View>
+        )}
+
+        <View style={styles.navActions}>
+          <TouchableOpacity onPress={onLogin}>
+            <Text style={styles.loginText}>Login</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onLogin} style={styles.installBtn}>
+            <Text style={styles.installBtnText}>Acessar App</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Hero Section */}
+      <View style={styles.hero}>
+        <Text style={styles.headline}>Assuma o controle financeiro</Text>
+        <Text style={styles.headlineGreen}>Liberdade real a longo prazo</Text>
+        
+        <Text style={styles.subtitle}>
+          O aplicativo definitivo para organizar seus gastos, criar metas de economia e alcançar a consistência com análises avançadas do seu histórico.
+        </Text>
+
+        <View style={styles.ctaGroup}>
+          <TouchableOpacity activeOpacity={0.8} onPress={onLogin} style={styles.primaryBtn}>
+            <LinearGradient colors={[COLORS.green, COLORS.greenLight]} style={styles.primaryBtnGrad}>
+              <Text style={styles.primaryBtnText}>Criar conta gratuita</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          
+          <TouchableOpacity activeOpacity={0.8} onPress={onLogin} style={styles.secondaryBtn}>
+            <Text style={styles.secondaryBtnText}>Ver Demonstração</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Footer */}
+      <View style={styles.footer}>
+        <Text style={styles.footerTitle}>Compatível com suas principais contas</Text>
+        <View style={styles.footerLogos}>
+          {['Nubank', 'Itaú', 'Inter', 'XP', 'Bradesco'].map(bank => (
+            <Text key={bank} style={styles.bankLogo}>{bank}</Text>
+          ))}
+        </View>
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0a0f16',
+  },
+  content: {
+    minHeight: '100%',
+    paddingHorizontal: isWeb && width > 768 ? '10%' : 20,
+    paddingTop: 30,
+    paddingBottom: 60,
+  },
+  navbar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 80,
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  logoIcon: {
+    fontSize: 24,
+  },
+  logoText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+  },
+  navLinks: {
+    flexDirection: 'row',
+    gap: 30,
+  },
+  navLink: {
+    color: '#cbd5e1',
+    fontSize: 15,
+    fontWeight: '500',
+  },
+  navActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+  },
+  loginText: {
+    color: '#cbd5e1',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  installBtn: {
+    backgroundColor: COLORS.green,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  installBtnText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  hero: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: isWeb && width > 768 ? 60 : 20,
+  },
+  headline: {
+    color: '#fff',
+    fontSize: isWeb && width > 768 ? 64 : 40,
+    fontWeight: '900',
+    textAlign: 'center',
+    letterSpacing: -1.5,
+    marginBottom: 5,
+  },
+  headlineGreen: {
+    color: COLORS.greenLight,
+    fontSize: isWeb && width > 768 ? 64 : 40,
+    fontWeight: '900',
+    textAlign: 'center',
+    letterSpacing: -1.5,
+    marginBottom: 24,
+  },
+  subtitle: {
+    color: '#94a3b8',
+    fontSize: isWeb && width > 768 ? 20 : 16,
+    textAlign: 'center',
+    maxWidth: 700,
+    lineHeight: 30,
+    marginBottom: 40,
+  },
+  ctaGroup: {
+    flexDirection: isWeb && width > 768 ? 'row' : 'column',
+    gap: 16,
+    width: isWeb && width > 768 ? 'auto' : '100%',
+  },
+  primaryBtn: {
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  primaryBtnGrad: {
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+  },
+  primaryBtnText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  secondaryBtn: {
+    backgroundColor: 'transparent',
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#1e293b',
+  },
+  secondaryBtnText: {
+    color: '#cbd5e1',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  footer: {
+    marginTop: 100,
+    alignItems: 'center',
+  },
+  footerTitle: {
+    color: '#475569',
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 30,
+  },
+  footerLogos: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: isWeb && width > 768 ? 50 : 20,
+  },
+  bankLogo: {
+    color: '#334155',
+    fontSize: isWeb && width > 768 ? 24 : 18,
+    fontWeight: '800',
+  }
+});

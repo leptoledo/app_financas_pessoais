@@ -10,9 +10,11 @@ import { TransactionProvider } from './TransactionContext';
 import { ThemeProvider } from './ThemeContext';
 import AppNavigator from './AppNavigator';
 import AuthScreen from './AuthScreen';
+import LandingScreen from './LandingScreen';
 
 export default function App() {
   const [session, setSession] = React.useState(null);
+  const [showLanding, setShowLanding] = React.useState(true);
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -31,7 +33,7 @@ export default function App() {
           <ThemeProvider>
             <TransactionProvider>
               <StatusBar style="auto" />
-              {session ? <AppNavigator /> : <AuthScreen />}
+              {session ? <AppNavigator /> : (showLanding ? <LandingScreen onLogin={() => setShowLanding(false)} /> : <AuthScreen />)}
             </TransactionProvider>
           </ThemeProvider>
         </SafeAreaProvider>
