@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS } from './constants';
@@ -7,6 +7,44 @@ const { width } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
 
 export default function LandingScreen({ onLogin }) {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    if (isWeb) {
+      const handleBeforeInstallPrompt = (e) => {
+        // Previne que o mini-infobar apareça no mobile
+        e.preventDefault();
+        // Guarda o evento para ser disparado pelo botão
+        setDeferredPrompt(e);
+      };
+
+      window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+      return () => {
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      };
+    }
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      // Mostra o prompt de instalação
+      deferredPrompt.prompt();
+      // Aguarda a escolha do usuário
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        console.log('Usuário aceitou a instalação do A2HS');
+      } else {
+        console.log('Usuário rejeitou a instalação do A2HS');
+      }
+      // O prompt só pode ser usado uma vez, então limpa ele
+      setDeferredPrompt(null);
+    } else {
+      // Fallback para Safari/iOS (que não suporta beforeinstallprompt nativamente)
+      alert("Para instalar no iOS: toque em 'Compartilhar' no menu do Safari e depois em 'Adicionar à Tela de Início'.");
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Navbar */}
@@ -28,8 +66,8 @@ export default function LandingScreen({ onLogin }) {
           <TouchableOpacity onPress={onLogin}>
             <Text style={styles.loginText}>Login</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={onLogin} style={styles.installBtn}>
-            <Text style={styles.installBtnText}>Acessar App</Text>
+          <TouchableOpacity onPress={isWeb ? handleInstallClick : onLogin} style={styles.installBtn}>
+            <Text style={styles.installBtnText}>{isWeb ? 'Instalar App' : 'Acessar App'}</Text>
           </TouchableOpacity>
         </View>
       </View>
