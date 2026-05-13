@@ -75,7 +75,7 @@ export default function LandingScreen({ onLogin }) {
       {/* Hero Section */}
       <View style={styles.hero}>
         <Text style={styles.headline}>Assuma o controle financeiro</Text>
-        <Text style={styles.headlineGreen}>Liberdade real a longo prazo</Text>
+        <Text style={styles.headlinePrimary}>Liberdade real a longo prazo</Text>
         
         <Text style={styles.subtitle}>
           O aplicativo definitivo para organizar seus gastos, criar metas de economia e alcançar a consistência com análises avançadas do seu histórico.
@@ -83,7 +83,12 @@ export default function LandingScreen({ onLogin }) {
 
         <View style={styles.ctaGroup}>
           <TouchableOpacity activeOpacity={0.8} onPress={onLogin} style={styles.primaryBtn}>
-            <LinearGradient colors={[COLORS.green, COLORS.greenLight]} style={styles.primaryBtnGrad}>
+            <LinearGradient 
+              colors={[COLORS.primary, COLORS.purple]} 
+              style={styles.primaryBtnGrad}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
               <Text style={styles.primaryBtnText}>Criar conta gratuita</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -110,7 +115,7 @@ export default function LandingScreen({ onLogin }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0f16',
+    backgroundColor: COLORS.bg,
   },
   content: {
     minHeight: '100%',
@@ -158,7 +163,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   installBtn: {
-    backgroundColor: COLORS.green,
+    backgroundColor: COLORS.primary,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -181,8 +186,8 @@ const styles = StyleSheet.create({
     letterSpacing: -1.5,
     marginBottom: 5,
   },
-  headlineGreen: {
-    color: COLORS.greenLight,
+  headlinePrimary: {
+    color: COLORS.primaryLight,
     fontSize: isWeb && width > 768 ? 64 : 40,
     fontWeight: '900',
     textAlign: 'center',
