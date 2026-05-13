@@ -3,7 +3,7 @@ import 'react-native-gesture-handler';
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StripeProvider } from '@stripe/stripe-react-native';
+import StripeProvider from './StripeWrapper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { supabase } from './supabase';
 import { TransactionProvider } from './TransactionContext';
