@@ -22,7 +22,13 @@ export const TransactionProvider = ({ children }) => {
     setLoading(true);
     
     // Pegar status da assinatura do metadata
-    const subStatus = userObj.user_metadata?.subscription || 'free';
+    let subStatus = userObj.user_metadata?.subscription || 'free';
+    
+    // Concede VIP/Admin para o criador
+    if (userObj.email === 'leptoledo@hotmail.com' || userObj.email === 'leandrotoledo@hotmail.com.br') {
+      subStatus = 'gold';
+    }
+    
     setSubscription(subStatus);
 
     // 1. Carregar Categorias
