@@ -11,10 +11,17 @@ import { ThemeProvider } from './ThemeContext';
 import AppNavigator from './AppNavigator';
 import AuthScreen from './AuthScreen';
 import LandingScreen from './LandingScreen';
+import { Platform } from 'react-native';
+
+const isWeb = Platform.OS === 'web';
+const isStandalone = isWeb && typeof window !== 'undefined' && (
+  (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || 
+  window.navigator.standalone === true
+);
 
 export default function App() {
   const [session, setSession] = React.useState(null);
-  const [showLanding, setShowLanding] = React.useState(true);
+  const [showLanding, setShowLanding] = React.useState(!isStandalone);
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
