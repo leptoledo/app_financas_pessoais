@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.yourname.financasapp",
+      "bundleIdentifier": "com.leptoledo.financas",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -23,7 +23,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0f0f14"
       },
-      "package": "com.yourname.financasapp"
+      "package": "com.leptoledo.financas"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -34,7 +34,7 @@
       [
         "@stripe/stripe-react-native",
         {
-          "merchantIdentifier": "merchant.com.yourname.financasapp",
+          "merchantIdentifier": "merchant.com.leptoledo.financas",
           "androidEnableGooglePay": true
         }
       ]
