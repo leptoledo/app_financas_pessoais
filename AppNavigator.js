@@ -1,4 +1,4 @@
-// src/navigation/AppNavigator.js
+// AppNavigator.js
 import React from 'react';
 import { TouchableOpacity, View, StyleSheet, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -8,20 +8,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 
-import DashboardScreen from '../screens/DashboardScreen';
-import TransactionsScreen from '../screens/TransactionsScreen';
-import CategoriesScreen from '../screens/CategoriesScreen';
-import AddTransactionScreen from '../screens/AddTransactionScreen';
-import { COLORS } from '../constants';
+import DashboardScreen from './DashboardScreen';
+import TransactionsScreen from './TransactionsScreen';
+import CategoriesScreen from './CategoriesScreen';
+import AddTransactionScreen from './AddTransactionScreen';
+import SettingsScreen from './SettingsScreen';
+import SubscriptionScreen from './SubscriptionScreen';
+import { useTheme } from './ThemeContext';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-function FAB({ onPress }) {
+function FAB({ onPress, colors }) {
   return (
-    <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={styles.fabWrapper}>
+    <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={[styles.fabWrapper, { shadowColor: colors.primary }]}>
       <LinearGradient
-        colors={[COLORS.primary, COLORS.purple]}
+        colors={[colors.primary, colors.purple]}
         style={styles.fab}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -33,16 +35,17 @@ function FAB({ onPress }) {
 }
 
 function TabNavigator({ navigation }) {
+  const { colors } = useTheme();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [styles.tabBar, { borderTopColor: colors.border }],
         tabBarBackground: () => (
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: COLORS.card, borderTopWidth: 1, borderTopColor: COLORS.border }]} />
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.card }]} />
         ),
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textDim,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textDim,
         tabBarLabelStyle: styles.tabLabel,
         tabBarIcon: ({ focused, color, size }) => {
           const icons = {
@@ -60,7 +63,7 @@ function TabNavigator({ navigation }) {
         component={DashboardScreen}
         options={{
           tabBarButton: () => (
-            <FAB onPress={() => navigation.navigate('AddTransaction')} />
+            <FAB onPress={() => navigation.navigate('AddTransaction')} colors={colors} />
           ),
         }}
       />
@@ -71,17 +74,18 @@ function TabNavigator({ navigation }) {
 }
 
 export default function AppNavigator() {
+  const { colors, isDark } = useTheme();
   return (
     <NavigationContainer
       theme={{
-        dark: true,
+        dark: isDark,
         colors: {
-          primary: COLORS.primary,
-          background: COLORS.bg,
-          card: COLORS.card,
-          text: COLORS.textPrimary,
-          border: COLORS.border,
-          notification: COLORS.primary,
+          primary: colors.primary,
+          background: colors.bg,
+          card: colors.card,
+          text: colors.textPrimary,
+          border: colors.border,
+          notification: colors.primary,
         },
       }}
     >
@@ -95,40 +99,24 @@ export default function AppNavigator() {
             animation: 'slide_from_bottom',
           }}
         />
+        <Stack.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{ animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="Subscription"
+          component={SubscriptionScreen}
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  tabBar: {
-    position: 'absolute',
-    height: 80,
-    paddingBottom: 20,
-    paddingTop: 8,
-    borderTopWidth: 0,
-    elevation: 0,
-  },
-  tabLabel: {
-    fontSize: 10,
-    fontWeight: '600',
-    letterSpacing: 0.3,
-    marginTop: 2,
-  },
-  fabWrapper: {
-    top: -18,
-    alignSelf: 'center',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
-    elevation: 10,
-  },
-  fab: {
-    width: 58,
-    height: 58,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  tabBar: { position: 'absolute', height: 80, paddingBottom: 20, paddingTop: 8, borderTopWidth: 1, elevation: 0 },
+  tabLabel: { fontSize: 10, fontWeight: '600', letterSpacing: 0.3, marginTop: 2 },
+  fabWrapper: { top: -18, alignSelf: 'center', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.5, shadowRadius: 12, elevation: 10 },
+  fab: { width: 58, height: 58, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
 });

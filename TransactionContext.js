@@ -1,109 +1,210 @@
-// src/context/TransactionContext.js
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { INITIAL_TRANSACTIONS, MONTHS } from '../constants';
+// TransactionContext.js
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { Alert } from 'react-native';
+import { supabase } from './supabase';
 
-const TransactionContext = createContext(null);
+const TransactionContext = createContext();
 
-const STORAGE_KEY = '@financas_transactions';
-
-export function TransactionProvider({ children }) {
-  const [transactions, setTransactions] = useState(INITIAL_TRANSACTIONS);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // 0-indexed
+export const TransactionProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+  const [categories, setCategories] = useState({ income: [], expense: [] });
+  const [currency, setCurrency] = useState('BRL');
+  const [month, setMonth] = useState(new Date().getMonth());
+  const [year, setYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(true);
 
-  // Load from storage on mount
-  useEffect(() => {
-    (async () => {
-      try {
-        const stored = await AsyncStorage.getItem(STORAGE_KEY);
-        if (stored) setTransactions(JSON.parse(stored));
-      } catch (_) {}
-      setLoading(false);
-    })();
+  // Status da Assinatura: 'free' ou 'gold'
+  const [subscription, setSubscription] = useState('free');
+
+  const fetchInitialData = useCallback(async (userObj) => {
+    if (!userObj) return;
+    setLoading(true);
+    
+    // Pegar status da assinatura do metadata
+    const subStatus = userObj.user_metadata?.subscription || 'free';
+    setSubscription(subStatus);
+
+    // 1. Carregar Categorias
+    const { data: cats, error: catErr } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('user_id', userObj.id);
+
+    if (!catErr && cats) {
+      if ((cats || []).length === 0 && !userObj.user_metadata?.has_seeded_categories) {
+        // Seeding inicial (mesma lógica anterior)
+        const defaults = [
+          { label: 'Salário', emoji: '💰', color: '#22c55e', type: 'income', user_id: userObj.id },
+          { label: 'Aluguel', emoji: '🏠', color: '#ef4444', type: 'expense', user_id: userObj.id },
+          { label: 'Alimentação', emoji: '🍔', color: '#f59e0b', type: 'expense', user_id: userObj.id },
+          { label: 'Transporte', emoji: '🚗', color: '#3b82f6', type: 'expense', user_id: userObj.id },
+          { label: 'Lazer', emoji: '🎬', color: '#7c3aed', type: 'expense', user_id: userObj.id },
+        ];
+        const { data: seededCats } = await supabase.from('categories').insert(defaults).select();
+        await supabase.auth.updateUser({ data: { has_seeded_categories: true } });
+        
+        const organized = (seededCats || []).reduce((acc, c) => {
+          acc[c.type].push(c);
+          return acc;
+        }, { income: [], expense: [] });
+        setCategories(organized);
+      } else {
+        const organized = cats.reduce((acc, c) => {
+          acc[c.type].push(c);
+          return acc;
+        }, { income: [], expense: [] });
+        setCategories(organized);
+      }
+    }
+
+    // 2. Carregar Transações (Para usuários Free, aplicaremos o filtro de 3 meses depois no UI ou aqui)
+    const { data: txs, error: txErr } = await supabase
+      .from('transactions')
+      .select('*, categories(*)')
+      .eq('user_id', userObj.id)
+      .order('date', { ascending: false });
+
+    if (!txErr) setTransactions(txs || []);
+    
+    // 3. Carregar Moeda
+    if (userObj.user_metadata?.currency) {
+      setCurrency(userObj.user_metadata.currency);
+    }
+
+    setLoading(false);
   }, []);
 
-  // Persist on change
   useEffect(() => {
-    if (!loading) {
-      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(transactions)).catch(() => {});
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(session.user);
+        fetchInitialData(session.user);
+      }
+    });
+
+    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        fetchInitialData(session.user);
+      } else {
+        setUser(null);
+        setTransactions([]);
+      }
+    });
+
+    return () => authSub.unsubscribe();
+  }, [fetchInitialData]);
+
+  const refresh = () => user && fetchInitialData(user);
+
+  const changeCurrency = async (newCurr) => {
+    setCurrency(newCurr);
+    await supabase.auth.updateUser({ data: { currency: newCurr } });
+  };
+
+  const updateSubscription = async (status) => {
+    setSubscription(status);
+    await supabase.auth.updateUser({ data: { subscription: status } });
+    refresh();
+  };
+
+  const deleteTransaction = async (id) => {
+    const { error } = await supabase.from('transactions').delete().eq('id', id);
+    if (!error) refresh();
+  };
+
+  const addTransaction = async (tx) => {
+    if (!user) return;
+    const { error } = await supabase.from('transactions').insert([{ ...tx, user_id: user.id }]);
+    if (!error) refresh();
+    else Alert.alert('Erro ao salvar', error.message);
+  };
+
+  // Lógica de Filtro por Mês e por Plano
+  const monthTransactions = useMemo(() => {
+    let filtered = transactions;
+
+    // Regra do Plano Free: Apenas últimos 3 meses de histórico
+    if (subscription === 'free') {
+      const threeMonthsAgo = new Date();
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+      filtered = filtered.filter(t => new Date(t.date) >= threeMonthsAgo);
     }
-  }, [transactions, loading]);
 
-  // Transactions for selected month
-  const monthTransactions = useMemo(() =>
-    transactions.filter((t) => {
+    // Filtro do Mês selecionado no UI
+    return filtered.filter(t => {
       const d = new Date(t.date);
-      return d.getMonth() === selectedMonth && d.getFullYear() === 2026;
-    }),
-    [transactions, selectedMonth]
-  );
+      return d.getUTCMonth() === month && d.getUTCFullYear() === year;
+    });
+  }, [transactions, month, year, subscription]);
 
-  const totalIncome = useMemo(
-    () => monthTransactions.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0),
-    [monthTransactions]
-  );
-  const totalExpense = useMemo(
-    () => monthTransactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
-    [monthTransactions]
-  );
+  // Totais (Baseados no filtro do mês)
+  const totalIncome = monthTransactions.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
+  const totalExpense = monthTransactions.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
   const balance = totalIncome - totalExpense;
 
-  // Last 6 months bar chart data
+  // Dados para o Gráfico (Últimos 6 meses)
   const monthlyData = useMemo(() => {
-    return Array.from({ length: 6 }, (_, i) => {
-      const month = (selectedMonth - 5 + i + 12) % 12;
-      const tx = transactions.filter((t) => new Date(t.date).getMonth() === month);
-      return {
-        month: MONTHS[month],
-        income: tx.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0),
-        expense: tx.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
-      };
-    });
-  }, [transactions, selectedMonth]);
+    const data = [];
+    const now = new Date();
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-  // Expenses grouped by category
-  const expenseByCategory = useMemo(() => {
-    const map = {};
-    monthTransactions
-      .filter((t) => t.type === 'expense')
-      .forEach((t) => {
-        map[t.category] = (map[t.category] || 0) + t.amount;
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const m = d.getMonth();
+      const y = d.getFullYear();
+
+      const filtered = transactions.filter(t => {
+        const txDate = new Date(t.date);
+        return txDate.getUTCMonth() === m && txDate.getUTCFullYear() === y;
       });
-    return Object.entries(map).sort((a, b) => b[1] - a[1]);
+
+      const inc = filtered.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
+      const exp = filtered.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
+
+      data.push({
+        month: months[m],
+        income: inc,
+        expense: exp,
+      });
+    }
+    return data;
+  }, [transactions]);
+
+  // Gastos por Categoria (Para o Dashboard)
+  const expenseByCategory = useMemo(() => {
+    const counts = monthTransactions
+      .filter(t => t.type === 'expense')
+      .reduce((acc, t) => {
+        const catName = t.categories?.label || 'Sem Categoria';
+        acc[catName] = (acc[catName] || 0) + Number(t.amount);
+        return acc;
+      }, {});
+    
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
   }, [monthTransactions]);
 
-  function addTransaction(tx) {
-    const newTx = { ...tx, id: Date.now().toString() };
-    setTransactions((prev) => [newTx, ...prev]);
-  }
+  // Verificadores de Limite (Para UX)
+  const canAddTransaction = subscription === 'gold' || (transactions || []).length < 50;
+  const canAddCategory = subscription === 'gold' || ((categories?.income || []).length + (categories?.expense || []).length) < 5;
 
-  function deleteTransaction(id) {
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
-  }
+  const fmt = (val) => {
+    const symbols = { BRL: 'R$', USD: '$', EUR: '€', GBP: '£' };
+    return `${symbols[currency]} ${Number(val).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+  };
 
   return (
     <TransactionContext.Provider value={{
-      transactions,
-      monthTransactions,
-      totalIncome,
-      totalExpense,
-      balance,
-      monthlyData,
-      expenseByCategory,
-      selectedMonth,
-      setSelectedMonth,
-      addTransaction,
-      deleteTransaction,
-      loading,
+      user, transactions, monthTransactions, categories, 
+      loading, currency, month, year, subscription,
+      totalIncome, totalExpense, balance, monthlyData, expenseByCategory,
+      setMonth, setYear, refresh, changeCurrency, deleteTransaction, addTransaction,
+      updateSubscription, canAddTransaction, canAddCategory, fmt
     }}>
       {children}
     </TransactionContext.Provider>
   );
-}
+};
 
-export function useTransactions() {
-  const ctx = useContext(TransactionContext);
-  if (!ctx) throw new Error('useTransactions must be inside TransactionProvider');
-  return ctx;
-}
+export const useTransactions = () => useContext(TransactionContext);
