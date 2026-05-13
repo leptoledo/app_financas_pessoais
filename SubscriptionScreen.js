@@ -1,11 +1,12 @@
 // SubscriptionScreen.js
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, Alert, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTransactions } from './TransactionContext';
 import { useTheme } from './ThemeContext';
+import { supabase } from './supabase';
 
 function PlanFeature({ label, icon = "checkmark-circle", active = true, colors }) {
   return (
@@ -25,12 +26,26 @@ export default function SubscriptionScreen({ navigation }) {
 
   const handleSubscribe = async (plan) => {
     if (plan === 'gold') {
-      // Aqui entraria a lógica do Stripe. Por enquanto, simulamos o sucesso.
-      updateSubscription('gold');
+      // Pega o ID do usuário atual para enviar pro Stripe
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      // Substitua pela SUA URL de Pagamento do Stripe (Payment Link)
+      // O parâmetro client_reference_id ajuda o Stripe a avisar o banco de dados depois
+      const stripePaymentLink = `https://buy.stripe.com/test_seu_link_aqui?client_reference_id=${user.id}`;
+      
+      Alert.alert(
+        'Redirecionando...',
+        'Você será levado para o ambiente seguro do Stripe para finalizar o pagamento.',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Continuar', onPress: () => Linking.openURL(stripePaymentLink) }
+        ]
+      );
     } else {
       updateSubscription('free');
+      navigation.goBack();
     }
-    navigation.goBack();
   };
 
   return (
