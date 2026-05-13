@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Finanças",
+    "slug": "appfinancaspessoais",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f0f14"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.yourname.financasapp"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0f0f14"
+      },
+      "package": "com.yourname.financasapp"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "8c6bc687-ae1a-470a-9937-b7d46696ed19"
+      }
+    },
+    "owner": "leptoledos-organization"
+  }
+}
