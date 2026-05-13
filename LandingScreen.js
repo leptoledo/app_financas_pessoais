@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform, ScrollView, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS } from './constants';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
 
 export default function LandingScreen({ onLogin }) {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showIosTutorial, setShowIosTutorial] = useState(false);
 
   useEffect(() => {
     if (isWeb) {
@@ -40,8 +42,8 @@ export default function LandingScreen({ onLogin }) {
       // O prompt só pode ser usado uma vez, então limpa ele
       setDeferredPrompt(null);
     } else {
-      // Fallback para Safari/iOS (que não suporta beforeinstallprompt nativamente)
-      alert("Para instalar no iOS: toque em 'Compartilhar' no menu do Safari e depois em 'Adicionar à Tela de Início'.");
+      // Fallback para Safari/iOS ou Desktop sem suporte
+      setShowIosTutorial(true);
     }
   };
 
@@ -108,6 +110,38 @@ export default function LandingScreen({ onLogin }) {
           ))}
         </View>
       </View>
+
+      {/* iOS Install Tutorial Modal */}
+      <Modal visible={showIosTutorial} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Instalar no iPhone</Text>
+              <TouchableOpacity onPress={() => setShowIosTutorial(false)}>
+                <Ionicons name="close" size={24} color="#94a3b8" />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.modalDesc}>
+              Para instalar este aplicativo no seu iPhone e acessar direto da tela inicial:
+            </Text>
+            
+            <View style={styles.stepRow}>
+              <View style={styles.stepNumber}><Text style={styles.stepNumberText}>1</Text></View>
+              <Text style={styles.stepText}>Toque no ícone de Compartilhar <Ionicons name="share-outline" size={18} color={COLORS.primaryLight} /> no menu inferior do Safari.</Text>
+            </View>
+            
+            <View style={styles.stepRow}>
+              <View style={styles.stepNumber}><Text style={styles.stepNumberText}>2</Text></View>
+              <Text style={styles.stepText}>Role para baixo e selecione <Text style={{fontWeight: 'bold', color: '#fff'}}>Adicionar à Tela de Início</Text> <Ionicons name="add-square-outline" size={18} color={COLORS.primaryLight} />.</Text>
+            </View>
+
+            <TouchableOpacity style={styles.modalBtn} onPress={() => setShowIosTutorial(false)}>
+              <Text style={styles.modalBtnText}>Entendi</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -255,5 +289,76 @@ const styles = StyleSheet.create({
     color: '#334155',
     fontSize: isWeb && width > 768 ? 24 : 18,
     fontWeight: '800',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  modalDesc: {
+    color: '#cbd5e1',
+    fontSize: 15,
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  stepRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    marginBottom: 20,
+  },
+  stepNumber: {
+    backgroundColor: COLORS.cardAlt,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  stepNumberText: {
+    color: COLORS.primaryLight,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  stepText: {
+    flex: 1,
+    color: '#94a3b8',
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  modalBtn: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  modalBtnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   }
 });
