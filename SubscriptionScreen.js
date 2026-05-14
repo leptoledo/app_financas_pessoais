@@ -59,7 +59,7 @@ export default function SubscriptionScreen({ navigation }) {
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Planos</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scroll}>
         {/* Hero */}
         <View style={styles.hero}>
           <LinearGradient colors={[colors.primary, colors.purple]} style={styles.heroIcon} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>

@@ -135,7 +135,12 @@ export default function AddTransactionScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      <ScrollView 
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.scroll} 
+        showsVerticalScrollIndicator={false} 
+        keyboardShouldPersistTaps="handled"
+      >
         <TypeToggle value={type} onChange={setType} colors={colors} />
 
         <View style={[styles.amountContainer, { backgroundColor: colors.cardAlt, borderColor: colors.border }]}>

@@ -173,7 +173,11 @@ export default function CategoriesScreen({ navigation }) {
       {activeTab === 'analysis' ? (
         <>
           <MonthSelector />
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+          <ScrollView 
+            style={{ flex: 1 }}
+            showsVerticalScrollIndicator={false} 
+            contentContainerStyle={styles.scroll}
+          >
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <View style={[styles.sectionDot, { backgroundColor: colors.green }]} />
@@ -200,7 +204,11 @@ export default function CategoriesScreen({ navigation }) {
           </ScrollView>
         </>
       ) : (
-        <ScrollView contentContainerStyle={styles.manageScroll} showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.manageScroll} 
+          showsVerticalScrollIndicator={false}
+        >
           <View style={[styles.manageTypeSelector, { backgroundColor: colors.cardAlt }]}>
             <TouchableOpacity onPress={() => setManageType('income')} style={[styles.manageTypeBtn, manageType === 'income' && { backgroundColor: colors.green }]}>
               <Text style={[styles.manageTypeText, { color: manageType === 'income' ? '#fff' : colors.textDim }]}>Entradas</Text>

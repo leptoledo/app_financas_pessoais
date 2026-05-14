@@ -175,6 +175,7 @@ export default function DashboardScreen({ navigation }) {
       <MonthSelector />
 
       <ScrollView
+        style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
       >

@@ -295,6 +295,7 @@ export default function TransactionsScreen() {
         </View>
       ) : (
         <FlatList
+          style={{ flex: 1 }}
           data={filtered}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (

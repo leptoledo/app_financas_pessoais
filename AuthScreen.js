@@ -84,6 +84,7 @@ export default function AuthScreen() {
     >
       <LinearGradient colors={[COLORS.bg, COLORS.card]} style={styles.container}>
         <ScrollView 
+          style={{ flex: 1 }}
           contentContainerStyle={styles.scroll} 
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"

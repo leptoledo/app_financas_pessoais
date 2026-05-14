@@ -48,7 +48,10 @@ export default function LandingScreen({ onLogin }) {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView 
+      style={{ flex: 1 }} 
+      contentContainerStyle={styles.content}
+    >
       {/* Navbar */}
       <View style={styles.navbar}>
         <View style={styles.logoContainer}>
