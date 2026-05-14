@@ -41,7 +41,8 @@ export default function App() {
         html, body, #root {
           height: 100% !important;
           width: 100% !important;
-          overflow: auto !important;
+          overflow: hidden !important;
+          position: fixed !important;
           -webkit-overflow-scrolling: touch !important;
         }
       `;
