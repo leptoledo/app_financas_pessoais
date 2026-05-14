@@ -24,7 +24,10 @@ export default function AuthScreen() {
     if (isSignUp) {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) Alert.alert('Erro no cadastro', error.message);
-      else Alert.alert('Sucesso', 'Verifique seu e-mail para confirmar o cadastro!');
+      else {
+        Alert.alert('Sucesso', 'Conta criada com sucesso! Você já pode fazer login agora.');
+        setIsSignUp(false);
+      }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) Alert.alert('Erro no login', error.message);
