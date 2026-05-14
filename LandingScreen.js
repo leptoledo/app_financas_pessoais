@@ -84,7 +84,7 @@ export default function LandingScreen({ onLogin }) {
         </Text>
 
         <View style={styles.ctaGroup}>
-          <TouchableOpacity activeOpacity={0.8} onPress={onLogin} style={styles.primaryBtn}>
+          <TouchableOpacity activeOpacity={0.8} onPress={isWeb ? handleInstallClick : onLogin} style={styles.primaryBtn}>
             <LinearGradient 
               colors={[COLORS.primary, COLORS.purple]} 
               style={styles.primaryBtnGrad}
