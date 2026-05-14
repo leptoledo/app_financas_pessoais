@@ -38,15 +38,23 @@ export default function App() {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
       const style = document.createElement('style');
       style.textContent = `
-        html, body, #root {
+        html, body {
           height: 100% !important;
           width: 100% !important;
           overflow: hidden !important;
           margin: 0 !important;
           padding: 0 !important;
-          position: fixed !important;
-          display: flex !important;
           background-color: #0f172a !important;
+        }
+        #root {
+          height: 100% !important;
+          width: 100% !important;
+          display: flex !important;
+          flex-direction: column !important;
+        }
+        /* Habilita o scroll interno suave no iOS */
+        div {
+          -webkit-overflow-scrolling: touch;
         }
       `;
       document.head.append(style);
@@ -54,13 +62,13 @@ export default function App() {
   }, []);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, height: '100%', width: '100%' }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <StripeProvider publishableKey="pk_test_YOUR_KEY">
         <SafeAreaProvider style={{ flex: 1 }}>
           <ThemeProvider>
             <TransactionProvider>
               <StatusBar style="light" />
-              <View style={{ flex: 1, height: '100%', width: '100%', overflow: 'hidden' }}>
+              <View style={{ flex: 1, height: '100%', width: '100%' }}>
                 {session ? <AppNavigator /> : (showLanding ? <LandingScreen onLogin={() => setShowLanding(false)} /> : <AuthScreen />)}
               </View>
             </TransactionProvider>
