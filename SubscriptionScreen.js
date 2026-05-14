@@ -75,7 +75,7 @@ export default function SubscriptionScreen({ navigation }) {
           <View style={[styles.planCard, { backgroundColor: colors.card, borderColor: colors.border + '66' }]}>
             <View style={styles.planHeader}>
               <Text style={[styles.planName, { color: colors.textPrimary }]}>Plano Grátis</Text>
-              <Text style={[styles.planPrice, { color: colors.textDim }]}>R$ 0,00</Text>
+              <Text style={[styles.planPrice, { color: colors.textDim }]}>€ 0,00</Text>
             </View>
             <View style={[styles.divider, { backgroundColor: colors.border }]} />
             <PlanFeature label="Histórico de até 3 meses" colors={colors} />
