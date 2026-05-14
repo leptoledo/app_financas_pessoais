@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   emojiBtn: { width: 48, height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', position: 'relative' },
   emojiMainText: { fontSize: 22 },
   emojiEditBadge: { position: 'absolute', bottom: -2, right: -2, width: 14, height: 14, borderRadius: 7, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#fff' },
-  input: { flex: 1, height: 48, borderRadius: 12, paddingHorizontal: 12, fontSize: 14, fontWeight: '600' },
+  input: { flex: 1, height: 48, borderRadius: 12, paddingHorizontal: 12, fontSize: 14, fontWeight: '600', outlineStyle: 'none' },
   addCircle: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   emojiPicker: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, padding: 10, backgroundColor: 'rgba(0,0,0,0.02)', borderRadius: 12, marginBottom: 16, justifyContent: 'center' },
   emojiOption: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },

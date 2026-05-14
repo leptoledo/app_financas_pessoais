@@ -207,7 +207,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     borderWidth: 1,
-    borderColor: COLORS.border
+    borderColor: COLORS.border,
+    outlineStyle: 'none'
   },
   mainBtn: { borderRadius: 16, overflow: 'hidden', marginTop: 10 },
   mainBtnGrad: { paddingVertical: 18, alignItems: 'center' },
