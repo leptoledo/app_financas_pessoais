@@ -77,6 +77,7 @@ export default function AuthScreen() {
     }
   }
 
+  return (
     <View style={styles.screen}>
       <LinearGradient colors={[COLORS.bg, COLORS.card]} style={StyleSheet.absoluteFill} />
       <KeyboardAvoidingView 
