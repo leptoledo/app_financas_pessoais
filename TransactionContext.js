@@ -25,7 +25,12 @@ export const TransactionProvider = ({ children }) => {
     let subStatus = userObj.user_metadata?.subscription || 'free';
     
     // Concede VIP/Admin para o criador
-    if (userObj.email === 'leptoledo@hotmail.com' || userObj.email === 'leandrotoledo@hotmail.com.br') {
+    const vipEmails = [
+      'leptoledo@hotmail.com',
+      'leandrotoledo@hotmail.com.br',
+      'puccihaven@gmail.com',
+    ];
+    if (vipEmails.includes(userObj.email)) {
       subStatus = 'gold';
     }
     
