@@ -191,9 +191,17 @@ export const TransactionProvider = ({ children }) => {
     return Object.entries(counts).sort((a, b) => b[1] - a[1]);
   }, [monthTransactions]);
 
+  // Limites por plano
+  const LIMITS = {
+    free: { transactions: 50, categories: 5 },
+    pro:  { transactions: 100, categories: 10 },
+    gold: { transactions: Infinity, categories: Infinity },
+  };
+  const currentLimits = LIMITS[subscription] || LIMITS.free;
+
   // Verificadores de Limite (Para UX)
-  const canAddTransaction = subscription === 'gold' || (transactions || []).length < 50;
-  const canAddCategory = subscription === 'gold' || ((categories?.income || []).length + (categories?.expense || []).length) < 5;
+  const canAddTransaction = (transactions || []).length < currentLimits.transactions;
+  const canAddCategory = ((categories?.income || []).length + (categories?.expense || []).length) < currentLimits.categories;
 
   const fmt = (val) => {
     const symbols = { BRL: 'R$', USD: '$', EUR: '€', GBP: '£' };

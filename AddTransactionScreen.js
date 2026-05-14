@@ -71,7 +71,7 @@ export default function AddTransactionScreen({ navigation }) {
     if (!canAddTransaction) {
       Alert.alert(
         'Limite Atingido 🚀',
-        'Você atingiu o limite de 50 transações do plano grátis. Migre para o Gold para ter acesso ilimitado!',
+        'Você atingiu o limite de transações do seu plano. Faça upgrade para o Plano Pro (100 transações) ou Gold (ilimitado)!',
         [
           { text: 'Agora não', style: 'cancel' },
           { text: 'Ver Planos', onPress: () => navigation.navigate('Subscription') }

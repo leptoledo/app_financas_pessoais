@@ -1,6 +1,6 @@
 // SubscriptionScreen.js
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, Alert, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,7 +8,7 @@ import { useTransactions } from './TransactionContext';
 import { useTheme } from './ThemeContext';
 import { supabase } from './supabase';
 
-function PlanFeature({ label, icon = "checkmark-circle", active = true, colors }) {
+function PlanFeature({ label, icon = 'checkmark-circle', active = true, colors }) {
   return (
     <View style={styles.featureRow}>
       <Ionicons name={icon} size={20} color={active ? colors.green : colors.textDim} />
@@ -23,23 +23,25 @@ export default function SubscriptionScreen({ navigation }) {
   const { subscription, updateSubscription } = useTransactions();
 
   const isGold = subscription === 'gold';
+  const isPro  = subscription === 'pro';
+  const isFree = subscription === 'free';
 
   const handleSubscribe = async (plan) => {
-    if (plan === 'gold') {
-      // Pega o ID do usuário atual para enviar pro Stripe
+    if (plan === 'gold' || plan === 'pro') {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      
-      // Substitua pela SUA URL de Pagamento do Stripe (Payment Link)
-      // O parâmetro client_reference_id ajuda o Stripe a avisar o banco de dados depois
-      const stripePaymentLink = `https://buy.stripe.com/test_seu_link_aqui?client_reference_id=${user.id}`;
-      
+
+      const links = {
+        pro:  `https://buy.stripe.com/test_link_pro?client_reference_id=${user.id}`,
+        gold: `https://buy.stripe.com/test_link_gold?client_reference_id=${user.id}`,
+      };
+
       Alert.alert(
         'Redirecionando...',
         'Você será levado para o ambiente seguro do Stripe para finalizar o pagamento.',
         [
           { text: 'Cancelar', style: 'cancel' },
-          { text: 'Continuar', onPress: () => Linking.openURL(stripePaymentLink) }
+          { text: 'Continuar', onPress: () => Linking.openURL(links[plan]) },
         ]
       );
     } else {
@@ -58,13 +60,9 @@ export default function SubscriptionScreen({ navigation }) {
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
+        {/* Hero */}
         <View style={styles.hero}>
-          <LinearGradient
-            colors={[colors.primary, colors.purple]}
-            style={styles.heroIcon}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
+          <LinearGradient colors={[colors.primary, colors.purple]} style={styles.heroIcon} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
             <Ionicons name="diamond" size={40} color="#fff" />
           </LinearGradient>
           <Text style={[styles.heroTitle, { color: colors.textPrimary }]}>Escolha seu nível</Text>
@@ -72,66 +70,92 @@ export default function SubscriptionScreen({ navigation }) {
         </View>
 
         <View style={styles.plansContainer}>
-          {/* Plano FREE */}
-          <View style={[styles.planCard, { backgroundColor: colors.card, borderColor: colors.border + '44' }]}>
+
+          {/* ── FREE ── */}
+          <View style={[styles.planCard, { backgroundColor: colors.card, borderColor: colors.border + '66' }]}>
             <View style={styles.planHeader}>
               <Text style={[styles.planName, { color: colors.textPrimary }]}>Plano Grátis</Text>
               <Text style={[styles.planPrice, { color: colors.textDim }]}>R$ 0,00</Text>
             </View>
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
             <PlanFeature label="Histórico de até 3 meses" colors={colors} />
             <PlanFeature label="Até 5 categorias" colors={colors} />
-            <PlanFeature label="Limite de 50 transações" colors={colors} />
-            <PlanFeature label="Exportação de dados" icon="close-circle" active={false} colors={colors} />
-            
-            <TouchableOpacity 
-              disabled={!isGold}
+            <PlanFeature label="Até 50 transações" colors={colors} />
+            <PlanFeature label="Importação CSV" icon="close-circle" active={false} colors={colors} />
+            <TouchableOpacity
+              disabled={isFree}
               onPress={() => handleSubscribe('free')}
-              style={[styles.planBtn, { backgroundColor: isGold ? colors.cardAlt : colors.border + '44' }]}
+              style={[styles.planBtn, { backgroundColor: isFree ? colors.border + '33' : colors.cardAlt }]}
             >
-              <Text style={[styles.planBtnText, { color: isGold ? colors.textPrimary : colors.textDim }]}>
-                {isGold ? 'Mudar para Grátis' : 'Plano Atual'}
+              <Text style={[styles.planBtnText, { color: isFree ? colors.textDim : colors.textPrimary }]}>
+                {isFree ? 'Plano Atual' : 'Mudar para Grátis'}
               </Text>
             </TouchableOpacity>
           </View>
 
-          {/* Plano GOLD */}
+          {/* ── PRO ── */}
           <View style={[styles.planCard, { backgroundColor: colors.card, borderColor: colors.primary, borderWidth: 2 }]}>
-            <LinearGradient
-              colors={[colors.primary + '11', colors.purple + '11']}
-              style={StyleSheet.absoluteFill}
-            />
+            <LinearGradient colors={[colors.primary + '11', colors.purple + '11']} style={StyleSheet.absoluteFill} />
             <View style={styles.planHeader}>
               <View>
-                <Text style={[styles.planName, { color: colors.primary }]}>Plano Gold ✨</Text>
-                <Text style={[styles.planPrice, { color: colors.textPrimary }]}>R$ 19,90<Text style={{ fontSize: 14, fontWeight: '400' }}>/mês</Text></Text>
+                <Text style={[styles.planName, { color: colors.primary }]}>Plano Pro 🚀</Text>
+                <Text style={[styles.planPrice, { color: colors.textPrimary }]}>
+                  R$ 9,90<Text style={{ fontSize: 14, fontWeight: '400' }}>/mês</Text>
+                </Text>
               </View>
               <View style={[styles.badge, { backgroundColor: colors.primary }]}>
-                <Text style={styles.badgeText}>RECOMENDADO</Text>
+                <Text style={styles.badgeText}>POPULAR</Text>
               </View>
             </View>
-            <View style={styles.divider} />
-            <PlanFeature label="Histórico ilimitado" colors={colors} />
-            <PlanFeature label="Categorias ilimitadas" colors={colors} />
-            <PlanFeature label="Transações ilimitadas" colors={colors} />
-            <PlanFeature label="Suporte Prioritário" colors={colors} />
-            <PlanFeature label="Sem anúncios" colors={colors} />
-
-            <TouchableOpacity 
-              disabled={isGold}
-              onPress={() => handleSubscribe('gold')}
-              activeOpacity={0.8}
-            >
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+            <PlanFeature label="Histórico de até 6 meses" colors={colors} />
+            <PlanFeature label="Até 10 categorias" colors={colors} />
+            <PlanFeature label="Até 100 transações" colors={colors} />
+            <PlanFeature label="Importação CSV" icon="close-circle" active={false} colors={colors} />
+            <TouchableOpacity disabled={isPro} onPress={() => handleSubscribe('pro')} activeOpacity={0.8}>
               <LinearGradient
-                colors={[colors.primary, colors.purple]}
-                style={styles.goldBtn}
+                colors={isPro ? [colors.cardAlt, colors.cardAlt] : [colors.primary, colors.purple]}
+                style={styles.actionBtn}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                <Text style={styles.goldBtnText}>{isGold ? 'Plano Ativo' : 'Assinar Agora'}</Text>
+                <Text style={styles.actionBtnText}>{isPro ? 'Plano Ativo' : 'Assinar Pro'}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
+
+          {/* ── GOLD ── */}
+          <View style={[styles.planCard, { backgroundColor: colors.card, borderColor: '#f59e0b', borderWidth: 2 }]}>
+            <LinearGradient colors={['#f59e0b18', '#ef444418']} style={StyleSheet.absoluteFill} />
+            <View style={styles.planHeader}>
+              <View>
+                <Text style={[styles.planName, { color: '#f59e0b' }]}>Plano Gold ✨</Text>
+                <Text style={[styles.planPrice, { color: colors.textPrimary }]}>
+                  R$ 19,90<Text style={{ fontSize: 14, fontWeight: '400' }}>/mês</Text>
+                </Text>
+              </View>
+              <View style={[styles.badge, { backgroundColor: '#f59e0b' }]}>
+                <Text style={styles.badgeText}>MELHOR</Text>
+              </View>
+            </View>
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+            <PlanFeature label="Histórico ilimitado" colors={colors} />
+            <PlanFeature label="Categorias ilimitadas" colors={colors} />
+            <PlanFeature label="Transações ilimitadas" colors={colors} />
+            <PlanFeature label="Importação CSV ✓" colors={colors} />
+            <PlanFeature label="Sem anúncios" colors={colors} />
+            <TouchableOpacity disabled={isGold} onPress={() => handleSubscribe('gold')} activeOpacity={0.8}>
+              <LinearGradient
+                colors={isGold ? [colors.cardAlt, colors.cardAlt] : ['#f59e0b', '#ef4444']}
+                style={styles.actionBtn}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <Text style={styles.actionBtnText}>{isGold ? 'Plano Ativo' : 'Assinar Gold'}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+
         </View>
 
         <Text style={[styles.footerText, { color: colors.textDim }]}>
@@ -159,12 +183,12 @@ const styles = StyleSheet.create({
   planPrice: { fontSize: 24, fontWeight: '800' },
   badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
   badgeText: { color: '#fff', fontSize: 10, fontWeight: '800' },
-  divider: { height: 1, backgroundColor: 'rgba(0,0,0,0.05)', marginBottom: 20 },
+  divider: { height: 1, marginBottom: 20 },
   featureRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 },
   featureText: { fontSize: 14, fontWeight: '500' },
   planBtn: { height: 54, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginTop: 10 },
   planBtnText: { fontSize: 16, fontWeight: '700' },
-  goldBtn: { height: 54, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginTop: 10 },
-  goldBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  footerText: { textAlign: 'center', fontSize: 12, marginTop: 32, paddingHorizontal: 40, lineHeight: 18 }
+  actionBtn: { height: 54, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginTop: 10 },
+  actionBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  footerText: { textAlign: 'center', fontSize: 12, marginTop: 32, paddingHorizontal: 40, lineHeight: 18 },
 });

@@ -163,7 +163,7 @@ export default function SettingsScreen({ navigation }) {
           <SettingItem 
             icon="diamond-outline" 
             label="Assinatura" 
-            value={subscription === 'gold' ? 'Plano Gold ✨' : 'Plano Grátis'} 
+            value={subscription === 'gold' ? 'Plano Gold ✨' : subscription === 'pro' ? 'Plano Pro 🚀' : 'Plano Grátis'} 
             onPress={() => navigation.navigate('Subscription')} 
             colors={colors}
           />

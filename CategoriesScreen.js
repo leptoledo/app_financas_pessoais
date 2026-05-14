@@ -59,10 +59,10 @@ export default function CategoriesScreen({ navigation }) {
     if (!canAddCategory) {
       Alert.alert(
         'Limite de Categorias 📂',
-        'O plano grátis permite até 5 categorias. Faça o upgrade para o Gold e crie quantas quiser!',
+        'Você atingiu o limite de categorias do seu plano. Faça upgrade para o Pro (10 categorias) ou Gold (ilimitado)!',
         [
           { text: 'Agora não', style: 'cancel' },
-          { text: 'Ver Planos', onPress: () => setActiveTab('manage') } // Ou navegar para Subscription
+          { text: 'Ver Planos', onPress: () => setActiveTab('manage') }
         ]
       );
       // Se quiser navegar direto para a tela de planos:
