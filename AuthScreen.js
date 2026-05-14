@@ -11,51 +11,58 @@ import { COLORS } from './constants';
 export default function AuthScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
 
   async function handleAuth() {
-    if (!email || !password) {
-      Alert.alert('Erro', 'Preencha todos os campos.');
+    if (!email || !password || (isSignUp && (!fullName || !phone))) {
+      Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
       return;
     }
 
     setLoading(true);
     try {
       if (isSignUp) {
-        console.log('Tentando cadastrar:', email);
+        console.log('Iniciando cadastro para:', email);
         const { data, error } = await supabase.auth.signUp({ 
           email, 
           password,
           options: {
             data: {
-              full_name: email.split('@')[0], // Nome padrão inicial
+              full_name: fullName.trim(),
+              phone: phone.trim(),
+              subscription: 'free'
             }
           }
         });
         
         if (error) {
-          console.error('Erro no cadastro:', error);
+          console.error('Erro Supabase SignUp:', error.message);
           Alert.alert('Erro no cadastro', error.message);
         } else {
-          console.log('Cadastro bem sucedido:', data);
-          Alert.alert('Sucesso', 'Conta criada com sucesso! Você já pode fazer login agora.');
-          setIsSignUp(false);
-          setPassword(''); // Limpa senha por segurança
+          console.log('Cadastro realizado com sucesso:', data);
+          if (data?.user) {
+            Alert.alert('Sucesso', 'Conta criada com sucesso! Você já pode fazer login agora.');
+            setIsSignUp(false);
+            setPassword('');
+          } else {
+            // Caso especial do Supabase (ex: e-mail já existe ou confirmação necessária)
+            Alert.alert('Aviso', 'Verifique se você já possui uma conta ou confirme seu e-mail.');
+          }
         }
       } else {
-        console.log('Tentando login:', email);
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        console.log('Iniciando login para:', email);
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
-          console.error('Erro no login:', error);
-          Alert.alert('Erro no login', error.message);
-        } else {
-          console.log('Login bem sucedido:', data);
+          console.error('Erro Supabase SignIn:', error.message);
+          Alert.alert('Erro no login', 'E-mail ou senha incorretos.');
         }
       }
     } catch (err) {
-      console.error('Erro inesperado:', err);
-      Alert.alert('Erro', 'Ocorreu um erro inesperado. Tente novamente.');
+      console.error('Erro Crítico Auth:', err);
+      Alert.alert('Erro de Conexão', 'Não foi possível completar a operação. Verifique sua internet.');
     } finally {
       setLoading(false);
     }
@@ -67,65 +74,94 @@ export default function AuthScreen() {
       style={styles.screen}
     >
       <LinearGradient colors={[COLORS.bg, COLORS.card]} style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoEmoji}>💎</Text>
+        <ScrollView 
+          contentContainerStyle={styles.scroll} 
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.header}>
+            <View style={styles.logoCircle}>
+              <Text style={styles.logoEmoji}>💎</Text>
+            </View>
+            <Text style={styles.title}>Finanças Pro</Text>
+            <Text style={styles.subtitle}>Seu controle financeiro inteligente</Text>
           </View>
-          <Text style={styles.title}>Finanças Pro</Text>
-          <Text style={styles.subtitle}>Seu controle financeiro inteligente</Text>
-        </View>
 
-        <View style={styles.form}>
-          <Text style={styles.label}>E-MAIL</Text>
-          <TextInput 
-            style={styles.input}
-            placeholder="seu@email.com"
-            placeholderTextColor={COLORS.textDim}
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
+          <View style={styles.form}>
+            {isSignUp && (
+              <>
+                <Text style={styles.label}>NOME COMPLETO</Text>
+                <TextInput 
+                  style={styles.input}
+                  placeholder="Seu nome"
+                  placeholderTextColor={COLORS.textDim}
+                  value={fullName}
+                  onChangeText={setFullName}
+                />
 
-          <Text style={styles.label}>SENHA</Text>
-          <TextInput 
-            style={styles.input}
-            placeholder="••••••••"
-            placeholderTextColor={COLORS.textDim}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
+                <Text style={styles.label}>TELEFONE</Text>
+                <TextInput 
+                  style={styles.input}
+                  placeholder="(00) 00000-0000"
+                  placeholderTextColor={COLORS.textDim}
+                  value={phone}
+                  onChangeText={setPhone}
+                  keyboardType="phone-pad"
+                />
+              </>
+            )}
 
-          <TouchableOpacity 
-            activeOpacity={0.8} 
-            onPress={handleAuth} 
-            disabled={loading}
-            style={styles.mainBtn}
-          >
-            <LinearGradient 
-              colors={[COLORS.primary, COLORS.purple]} 
-              style={styles.mainBtnGrad}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
+            <Text style={styles.label}>E-MAIL</Text>
+            <TextInput 
+              style={styles.input}
+              placeholder="seu@email.com"
+              placeholderTextColor={COLORS.textDim}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+
+            <Text style={styles.label}>SENHA</Text>
+            <TextInput 
+              style={styles.input}
+              placeholder="••••••••"
+              placeholderTextColor={COLORS.textDim}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+
+            <TouchableOpacity 
+              activeOpacity={0.8} 
+              onPress={handleAuth} 
+              disabled={loading}
+              style={styles.mainBtn}
             >
-              {loading ? <ActivityIndicator color="#fff" /> : (
-                <Text style={styles.mainBtnText}>
-                  {isSignUp ? 'Criar Conta' : 'Entrar'}
-                </Text>
-              )}
-            </LinearGradient>
-          </TouchableOpacity>
+              <LinearGradient 
+                colors={[COLORS.primary, COLORS.purple]} 
+                style={styles.mainBtnGrad}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                {loading ? <ActivityIndicator color="#fff" /> : (
+                  <Text style={styles.mainBtnText}>
+                    {isSignUp ? 'Criar Conta' : 'Entrar'}
+                  </Text>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
 
-          <TouchableOpacity 
-            onPress={() => setIsSignUp(!isSignUp)}
-            style={styles.switchBtn}
-          >
-            <Text style={styles.switchText}>
-              {isSignUp ? 'Já tem uma conta? Entre agora' : 'Não tem conta? Cadastre-se'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity 
+              onPress={() => setIsSignUp(!isSignUp)}
+              style={styles.switchBtn}
+            >
+              <Text style={styles.switchText}>
+                {isSignUp ? 'Já tem uma conta? Entre agora' : 'Não tem conta? Cadastre-se'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </LinearGradient>
     </KeyboardAvoidingView>
   );
@@ -133,7 +169,8 @@ export default function AuthScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  container: { flex: 1, justifyContent: 'center', padding: 30 },
+  container: { flex: 1 },
+  scroll: { padding: 30, paddingVertical: 60, justifyContent: 'center' },
   header: { alignItems: 'center', marginBottom: 40 },
   logoCircle: { 
     width: 80, height: 80, borderRadius: 30, 
