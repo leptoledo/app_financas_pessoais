@@ -8,6 +8,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { supabase } from './supabase';
 import { COLORS } from './constants';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function AuthScreen() {
   const [email, setEmail] = useState('');
@@ -16,17 +17,19 @@ export default function AuthScreen() {
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [authError, setAuthError] = useState('');
 
   async function handleAuth() {
+    setAuthError('');
     if (!email || !password || (isSignUp && (!fullName || !phone))) {
-      Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
+      setAuthError('Preencha todos os campos obrigatórios.');
       return;
     }
 
     setLoading(true);
     try {
       if (isSignUp) {
-        console.log('Iniciando cadastro para:', email);
+        console.log('Iniciando cadastro:', email);
         const { data, error } = await supabase.auth.signUp({ 
           email, 
           password,
@@ -40,30 +43,35 @@ export default function AuthScreen() {
         });
         
         if (error) {
-          console.error('Erro Supabase SignUp:', error.message);
-          Alert.alert('Erro no cadastro', error.message);
+          console.error('Erro no cadastro:', error.message);
+          setAuthError(error.message);
+          if (Platform.OS === 'web') alert('Erro no cadastro: ' + error.message);
         } else {
-          console.log('Cadastro realizado com sucesso:', data);
+          console.log('Cadastro sucesso:', data);
           if (data?.user) {
-            Alert.alert('Sucesso', 'Conta criada com sucesso! Você já pode fazer login agora.');
+            const successMsg = 'Conta criada com sucesso! Você já pode fazer login agora.';
+            if (Platform.OS === 'web') alert(successMsg);
+            else Alert.alert('Sucesso', successMsg);
+            
             setIsSignUp(false);
             setPassword('');
+            setFullName('');
+            setPhone('');
           } else {
-            // Caso especial do Supabase (ex: e-mail já existe ou confirmação necessária)
-            Alert.alert('Aviso', 'Verifique se você já possui uma conta ou confirme seu e-mail.');
+            setAuthError('Verifique se já possui uma conta ou confirme seu e-mail.');
           }
         }
       } else {
-        console.log('Iniciando login para:', email);
+        console.log('Iniciando login:', email);
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
-          console.error('Erro Supabase SignIn:', error.message);
-          Alert.alert('Erro no login', 'E-mail ou senha incorretos.');
+          console.error('Erro no login:', error.message);
+          setAuthError('E-mail ou senha incorretos.');
         }
       }
     } catch (err) {
-      console.error('Erro Crítico Auth:', err);
-      Alert.alert('Erro de Conexão', 'Não foi possível completar a operação. Verifique sua internet.');
+      console.error('Erro crítico:', err);
+      setAuthError('Erro de conexão. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -133,6 +141,13 @@ export default function AuthScreen() {
               secureTextEntry
             />
 
+            {authError ? (
+              <View style={styles.errorContainer}>
+                <Ionicons name="alert-circle" size={16} color={COLORS.red} />
+                <Text style={styles.errorText}>{authError}</Text>
+              </View>
+            ) : null}
+
             <TouchableOpacity 
               activeOpacity={0.8} 
               onPress={handleAuth} 
@@ -197,5 +212,7 @@ const styles = StyleSheet.create({
   mainBtnGrad: { paddingVertical: 18, alignItems: 'center' },
   mainBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
   switchBtn: { padding: 10, alignItems: 'center' },
-  switchText: { color: COLORS.primaryLight, fontSize: 13, fontWeight: '600' }
+  switchText: { color: COLORS.primaryLight, fontSize: 13, fontWeight: '600' },
+  errorContainer: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: COLORS.red + '15', padding: 12, borderRadius: 12, marginTop: 4 },
+  errorText: { color: COLORS.red, fontSize: 13, fontWeight: '600' }
 });
