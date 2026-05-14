@@ -42,8 +42,10 @@ export default function App() {
           height: 100% !important;
           width: 100% !important;
           overflow: hidden !important;
+          margin: 0 !important;
+          padding: 0 !important;
           position: fixed !important;
-          -webkit-overflow-scrolling: touch !important;
+          display: flex !important;
         }
       `;
       document.head.append(style);
@@ -51,13 +53,15 @@ export default function App() {
   }, []);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, height: '100%', width: '100%' }}>
       <StripeProvider publishableKey="pk_test_YOUR_KEY">
-        <SafeAreaProvider>
+        <SafeAreaProvider style={{ flex: 1 }}>
           <ThemeProvider>
             <TransactionProvider>
               <StatusBar style="auto" />
-              {session ? <AppNavigator /> : (showLanding ? <LandingScreen onLogin={() => setShowLanding(false)} /> : <AuthScreen />)}
+              <View style={{ flex: 1, height: '100%', width: '100%', overflow: 'hidden' }}>
+                {session ? <AppNavigator /> : (showLanding ? <LandingScreen onLogin={() => setShowLanding(false)} /> : <AuthScreen />)}
+              </View>
             </TransactionProvider>
           </ThemeProvider>
         </SafeAreaProvider>

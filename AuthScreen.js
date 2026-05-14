@@ -77,12 +77,12 @@ export default function AuthScreen() {
     }
   }
 
-  return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'android' ? 'height' : null} 
-      style={styles.screen}
-    >
-      <LinearGradient colors={[COLORS.bg, COLORS.card]} style={styles.container}>
+    <View style={styles.screen}>
+      <LinearGradient colors={[COLORS.bg, COLORS.card]} style={StyleSheet.absoluteFill} />
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'android' ? 'height' : null} 
+        style={{ flex: 1 }}
+      >
         <ScrollView 
           style={{ flex: 1 }}
           contentContainerStyle={styles.scroll} 
@@ -179,8 +179,8 @@ export default function AuthScreen() {
             </TouchableOpacity>
           </View>
         </ScrollView>
-      </LinearGradient>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
