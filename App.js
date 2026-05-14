@@ -11,7 +11,7 @@ import { ThemeProvider } from './ThemeContext';
 import AppNavigator from './AppNavigator';
 import AuthScreen from './AuthScreen';
 import LandingScreen from './LandingScreen';
-import { Platform } from 'react-native';
+import { Platform, View, StyleSheet } from 'react-native';
 
 const isWeb = Platform.OS === 'web';
 const isStandalone = isWeb && typeof window !== 'undefined' && (
@@ -46,6 +46,7 @@ export default function App() {
           padding: 0 !important;
           position: fixed !important;
           display: flex !important;
+          background-color: #0f172a !important;
         }
       `;
       document.head.append(style);
@@ -58,7 +59,7 @@ export default function App() {
         <SafeAreaProvider style={{ flex: 1 }}>
           <ThemeProvider>
             <TransactionProvider>
-              <StatusBar style="auto" />
+              <StatusBar style="light" />
               <View style={{ flex: 1, height: '100%', width: '100%', overflow: 'hidden' }}>
                 {session ? <AppNavigator /> : (showLanding ? <LandingScreen onLogin={() => setShowLanding(false)} /> : <AuthScreen />)}
               </View>

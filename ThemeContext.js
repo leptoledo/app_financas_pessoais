@@ -8,12 +8,24 @@ const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
   const systemTheme = useColorScheme();
-  const [themeMode, setThemeMode] = useState('dark'); // Default to 'dark' now
+  const [themeMode, setThemeMode] = useState('dark'); // Force dark by default now
 
   useEffect(() => {
-    AsyncStorage.getItem('@app_theme').then(val => {
-      if (val) setThemeMode(val);
-    });
+    const initTheme = async () => {
+      try {
+        const val = await AsyncStorage.getItem('@app_theme');
+        // Se estiver em 'light' ou não existir nada, forçamos para 'dark' uma única vez para atender o pedido do usuário
+        if (!val || val === 'light') {
+          setThemeMode('dark');
+          await AsyncStorage.setItem('@app_theme', 'dark');
+        } else {
+          setThemeMode(val);
+        }
+      } catch (e) {
+        setThemeMode('dark');
+      }
+    };
+    initTheme();
   }, []);
 
   const toggleTheme = async (mode) => {

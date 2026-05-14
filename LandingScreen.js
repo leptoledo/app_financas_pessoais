@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Platform, ScrollView, Modal } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS } from './constants';
+import { useTheme } from './ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
 
 export default function LandingScreen({ onLogin }) {
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
+  const styles = getStyles(colors);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showIosTutorial, setShowIosTutorial] = useState(false);
 
@@ -49,8 +53,8 @@ export default function LandingScreen({ onLogin }) {
 
   return (
     <ScrollView 
-      style={{ flex: 1 }} 
-      contentContainerStyle={styles.content}
+      style={{ flex: 1, backgroundColor: colors.bg }} 
+      contentContainerStyle={[styles.content, { paddingTop: Math.max(insets.top + 20, 40) }]}
     >
       {/* Navbar */}
       <View style={styles.navbar}>
@@ -89,7 +93,7 @@ export default function LandingScreen({ onLogin }) {
         <View style={styles.ctaGroup}>
           <TouchableOpacity activeOpacity={0.8} onPress={isWeb ? handleInstallClick : onLogin} style={styles.primaryBtn}>
             <LinearGradient 
-              colors={[COLORS.primary, COLORS.purple]} 
+              colors={[colors.primary, colors.purple]} 
               style={styles.primaryBtnGrad}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -104,15 +108,7 @@ export default function LandingScreen({ onLogin }) {
         </View>
       </View>
 
-      {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={styles.footerTitle}>Compatível com suas principais contas</Text>
-        <View style={styles.footerLogos}>
-          {['Nubank', 'Itaú', 'Inter', 'XP', 'Bradesco'].map(bank => (
-            <Text key={bank} style={styles.bankLogo}>{bank}</Text>
-          ))}
-        </View>
-      </View>
+
 
       {/* iOS Install Tutorial Modal */}
       <Modal visible={showIosTutorial} transparent animationType="fade">
@@ -131,12 +127,12 @@ export default function LandingScreen({ onLogin }) {
             
             <View style={styles.stepRow}>
               <View style={styles.stepNumber}><Text style={styles.stepNumberText}>1</Text></View>
-              <Text style={styles.stepText}>Toque no ícone de Compartilhar <Ionicons name="share-outline" size={18} color={COLORS.primaryLight} /> no menu inferior do Safari.</Text>
+              <Text style={styles.stepText}>Toque no ícone de Compartilhar <Ionicons name="share-outline" size={18} color={colors.primaryLight} /> no menu inferior do Safari.</Text>
             </View>
             
             <View style={styles.stepRow}>
               <View style={styles.stepNumber}><Text style={styles.stepNumberText}>2</Text></View>
-              <Text style={styles.stepText}>Role para baixo e selecione <Text style={{fontWeight: 'bold', color: '#fff'}}>Adicionar à Tela de Início</Text> <Ionicons name="add-square-outline" size={18} color={COLORS.primaryLight} />.</Text>
+              <Text style={styles.stepText}>Role para baixo e selecione <Text style={{fontWeight: 'bold', color: '#fff'}}>Adicionar à Tela de Início</Text> <Ionicons name="add-square-outline" size={18} color={colors.primaryLight} />.</Text>
             </View>
 
             <TouchableOpacity style={styles.modalBtn} onPress={() => setShowIosTutorial(false)}>
@@ -144,13 +140,13 @@ export default function LandingScreen({ onLogin }) {
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={[styles.modalBtn, { backgroundColor: 'transparent', marginTop: 10, borderWidth: 1, borderColor: COLORS.border }]} 
+              style={[styles.modalBtn, { backgroundColor: 'transparent', marginTop: 10, borderWidth: 1, borderColor: colors.border }]} 
               onPress={() => {
                 setShowIosTutorial(false);
                 onLogin();
               }}
             >
-              <Text style={[styles.modalBtnText, { color: COLORS.textDim, fontSize: 14 }]}>Continuar para o site</Text>
+              <Text style={[styles.modalBtnText, { color: colors.textDim, fontSize: 14 }]}>Continuar para o site</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -159,16 +155,17 @@ export default function LandingScreen({ onLogin }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bg,
+    backgroundColor: colors.bg,
   },
   content: {
-    minHeight: '100%',
+    flexGrow: 1,
     paddingHorizontal: isWeb && width > 768 ? '10%' : 20,
     paddingTop: 30,
     paddingBottom: 60,
+    justifyContent: 'center',
   },
   navbar: {
     flexDirection: 'row',
@@ -210,7 +207,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   installBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -234,7 +231,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   headlinePrimary: {
-    color: COLORS.primaryLight,
+    color: colors.primaryLight,
     fontSize: isWeb && width > 768 ? 64 : 40,
     fontWeight: '900',
     textAlign: 'center',
@@ -282,27 +279,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
-  footer: {
-    marginTop: 100,
-    alignItems: 'center',
-  },
-  footerTitle: {
-    color: '#475569',
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 30,
-  },
-  footerLogos: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: isWeb && width > 768 ? 50 : 20,
-  },
-  bankLogo: {
-    color: '#334155',
-    fontSize: isWeb && width > 768 ? 24 : 18,
-    fontWeight: '800',
-  },
+
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.7)',
@@ -311,13 +288,13 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: COLORS.card,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 24,
     width: '100%',
     maxWidth: 400,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -343,7 +320,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   stepNumber: {
-    backgroundColor: COLORS.cardAlt,
+    backgroundColor: colors.cardAlt,
     width: 24,
     height: 24,
     borderRadius: 12,
@@ -352,7 +329,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   stepNumberText: {
-    color: COLORS.primaryLight,
+    color: colors.primaryLight,
     fontSize: 12,
     fontWeight: '700',
   },
@@ -363,7 +340,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   modalBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
