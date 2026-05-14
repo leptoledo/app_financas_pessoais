@@ -71,7 +71,11 @@ export default function SettingsScreen({ navigation }) {
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Configurações</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView 
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={[styles.profileSection, { borderBottomColor: colors.border + '44' }]}>
           <View style={[styles.avatarLarge, { backgroundColor: colors.primary }]}>
             <Text style={styles.avatarText}>{userInitial}</Text>
