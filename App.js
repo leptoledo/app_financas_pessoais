@@ -38,23 +38,31 @@ export default function App() {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
       const style = document.createElement('style');
       style.textContent = `
-        html, body {
+        html, body, #root {
           height: 100% !important;
           width: 100% !important;
           overflow: hidden !important;
           margin: 0 !important;
           padding: 0 !important;
           background-color: #0f172a !important;
-        }
-        #root {
-          height: 100% !important;
-          width: 100% !important;
           display: flex !important;
           flex-direction: column !important;
+          -webkit-tap-highlight-color: transparent;
+          -webkit-touch-callout: none;
         }
-        /* Habilita o scroll interno suave no iOS */
-        div {
-          -webkit-overflow-scrolling: touch;
+        
+        /* Habilita o scroll em qualquer elemento que tenha overflow auto */
+        div[style*="overflow: auto"], 
+        div[style*="overflow-y: auto"],
+        div[style*="overflow: scroll"] {
+          -webkit-overflow-scrolling: touch !important;
+          touch-action: pan-y !important;
+          overscroll-behavior-y: contain !important;
+        }
+
+        /* Prevenir zoom automático no iOS */
+        input, textarea, select {
+          font-size: 16px !important;
         }
       `;
       document.head.append(style);
@@ -62,7 +70,7 @@ export default function App() {
   }, []);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, height: '100%' }}>
       <StripeProvider publishableKey="pk_test_YOUR_KEY">
         <SafeAreaProvider style={{ flex: 1 }}>
           <ThemeProvider>
