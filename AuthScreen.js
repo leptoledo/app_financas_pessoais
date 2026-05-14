@@ -79,7 +79,7 @@ export default function AuthScreen() {
 
   return (
     <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+      behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'android' ? 'height' : null} 
       style={styles.screen}
     >
       <LinearGradient colors={[COLORS.bg, COLORS.card]} style={styles.container}>

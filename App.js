@@ -33,6 +33,22 @@ export default function App() {
     });
   }, []);
 
+  // Fix global scrolling for Web PWA
+  React.useEffect(() => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      const style = document.createElement('style');
+      style.textContent = `
+        html, body, #root {
+          height: 100% !important;
+          width: 100% !important;
+          overflow: auto !important;
+          -webkit-overflow-scrolling: touch !important;
+        }
+      `;
+      document.head.append(style);
+    }
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <StripeProvider publishableKey="pk_test_YOUR_KEY">
