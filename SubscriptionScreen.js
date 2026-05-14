@@ -100,7 +100,7 @@ export default function SubscriptionScreen({ navigation }) {
               <View>
                 <Text style={[styles.planName, { color: colors.primary }]}>Plano Pro 🚀</Text>
                 <Text style={[styles.planPrice, { color: colors.textPrimary }]}>
-                  R$ 9,90<Text style={{ fontSize: 14, fontWeight: '400' }}>/mês</Text>
+                  € 2,99<Text style={{ fontSize: 14, fontWeight: '400' }}>/mês</Text>
                 </Text>
               </View>
               <View style={[styles.badge, { backgroundColor: colors.primary }]}>
@@ -131,7 +131,7 @@ export default function SubscriptionScreen({ navigation }) {
               <View>
                 <Text style={[styles.planName, { color: '#f59e0b' }]}>Plano Gold ✨</Text>
                 <Text style={[styles.planPrice, { color: colors.textPrimary }]}>
-                  R$ 19,90<Text style={{ fontSize: 14, fontWeight: '400' }}>/mês</Text>
+                  € 3,99<Text style={{ fontSize: 14, fontWeight: '400' }}>/mês</Text>
                 </Text>
               </View>
               <View style={[styles.badge, { backgroundColor: '#f59e0b' }]}>
