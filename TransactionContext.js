@@ -16,6 +16,7 @@ export const TransactionProvider = ({ children }) => {
 
   // Status da Assinatura: 'free' ou 'gold'
   const [subscription, setSubscription] = useState('free');
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const fetchInitialData = useCallback(async (userObj) => {
     if (!userObj) return;
@@ -35,6 +36,7 @@ export const TransactionProvider = ({ children }) => {
     }
     
     setSubscription(subStatus);
+    setIsAdmin(userObj.email === 'leptoledo@hotmail.com');
 
     // 1. Carregar Categorias
     const { data: cats, error: catErr } = await supabase
@@ -219,7 +221,7 @@ export const TransactionProvider = ({ children }) => {
       loading, currency, month, year, subscription,
       totalIncome, totalExpense, balance, monthlyData, expenseByCategory,
       setMonth, setYear, refresh, changeCurrency, deleteTransaction, addTransaction,
-      updateSubscription, canAddTransaction, canAddCategory, fmt
+      updateSubscription, canAddTransaction, canAddCategory, fmt, isAdmin
     }}>
       {children}
     </TransactionContext.Provider>

@@ -31,7 +31,7 @@ const CURRENCY_OPTIONS = [
 
 export default function SettingsScreen({ navigation }) {
   const insets = useSafeAreaInsets();
-  const { user, currency, changeCurrency, subscription } = useTransactions();
+  const { user, currency, changeCurrency, subscription, isAdmin } = useTransactions();
   const { colors, themeMode, toggleTheme } = useTheme();
   
   const [isEditing, setIsEditing] = React.useState(false);
@@ -178,6 +178,15 @@ export default function SettingsScreen({ navigation }) {
             onPress={() => navigation.navigate('Feedback')}
             colors={colors}
           />
+          {isAdmin && (
+            <SettingItem
+              icon="shield-checkmark-outline"
+              label="Painel de Feedbacks (Admin)"
+              color={colors.green}
+              onPress={() => navigation.navigate('AdminFeedback')}
+              colors={colors}
+            />
+          )}
         </View>
 
         <View style={styles.section}>
