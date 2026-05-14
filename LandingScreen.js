@@ -139,6 +139,16 @@ export default function LandingScreen({ onLogin }) {
             <TouchableOpacity style={styles.modalBtn} onPress={() => setShowIosTutorial(false)}>
               <Text style={styles.modalBtnText}>Entendi</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.modalBtn, { backgroundColor: 'transparent', marginTop: 10, borderWidth: 1, borderColor: COLORS.border }]} 
+              onPress={() => {
+                setShowIosTutorial(false);
+                onLogin();
+              }}
+            >
+              <Text style={[styles.modalBtnText, { color: COLORS.textDim, fontSize: 14 }]}>Continuar para o site</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>

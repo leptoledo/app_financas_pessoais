@@ -21,18 +21,44 @@ export default function AuthScreen() {
     }
 
     setLoading(true);
-    if (isSignUp) {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) Alert.alert('Erro no cadastro', error.message);
-      else {
-        Alert.alert('Sucesso', 'Conta criada com sucesso! Você já pode fazer login agora.');
-        setIsSignUp(false);
+    try {
+      if (isSignUp) {
+        console.log('Tentando cadastrar:', email);
+        const { data, error } = await supabase.auth.signUp({ 
+          email, 
+          password,
+          options: {
+            data: {
+              full_name: email.split('@')[0], // Nome padrão inicial
+            }
+          }
+        });
+        
+        if (error) {
+          console.error('Erro no cadastro:', error);
+          Alert.alert('Erro no cadastro', error.message);
+        } else {
+          console.log('Cadastro bem sucedido:', data);
+          Alert.alert('Sucesso', 'Conta criada com sucesso! Você já pode fazer login agora.');
+          setIsSignUp(false);
+          setPassword(''); // Limpa senha por segurança
+        }
+      } else {
+        console.log('Tentando login:', email);
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          console.error('Erro no login:', error);
+          Alert.alert('Erro no login', error.message);
+        } else {
+          console.log('Login bem sucedido:', data);
+        }
       }
-    } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) Alert.alert('Erro no login', error.message);
+    } catch (err) {
+      console.error('Erro inesperado:', err);
+      Alert.alert('Erro', 'Ocorreu um erro inesperado. Tente novamente.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
