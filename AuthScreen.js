@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { 
   View, Text, StyleSheet, TextInput, TouchableOpacity, 
-  KeyboardAvoidingView, Platform, Alert, ActivityIndicator 
+  KeyboardAvoidingView, Platform, Alert, ActivityIndicator,
+  ScrollView
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { supabase } from './supabase';
@@ -188,7 +189,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 18,
     color: '#fff',
-    fontSize: 15,
+    fontSize: 16,
     borderWidth: 1,
     borderColor: COLORS.border
   },
