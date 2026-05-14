@@ -170,6 +170,17 @@ export default function SettingsScreen({ navigation }) {
         </View>
 
         <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.primaryLight }]}>Suporte</Text>
+          <SettingItem
+            icon="chatbubble-ellipses-outline"
+            label="Enviar Feedback"
+            color={colors.purple}
+            onPress={() => navigation.navigate('Feedback')}
+            colors={colors}
+          />
+        </View>
+
+        <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.primaryLight }]}>Conta</Text>
           <SettingItem 
             icon="log-out-outline" 

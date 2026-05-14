@@ -14,6 +14,7 @@ import CategoriesScreen from './CategoriesScreen';
 import AddTransactionScreen from './AddTransactionScreen';
 import SettingsScreen from './SettingsScreen';
 import SubscriptionScreen from './SubscriptionScreen';
+import FeedbackScreen from './FeedbackScreen';
 import { useTheme } from './ThemeContext';
 
 const Tab = createBottomTabNavigator();
@@ -108,6 +109,11 @@ export default function AppNavigator() {
           name="Subscription"
           component={SubscriptionScreen}
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        />
+        <Stack.Screen
+          name="Feedback"
+          component={FeedbackScreen}
+          options={{ animation: 'slide_from_right' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
